@@ -1,4 +1,3 @@
-import axios from 'axios';
-window.axios = axios;
-
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+fetch('https://viacep.com.br/ws/01001000/json/')
+    .then(response => response.json())
+    .then(data => console.log(data));
