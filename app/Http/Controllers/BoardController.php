@@ -32,4 +32,13 @@ class BoardController extends Controller
 
         return redirect()->route('kanban.index');
     }
+
+    public function destroy(Board $board)
+    {
+        if ($board->user_id === auth()->id()) {
+            $board->delete();
+        }
+
+        return back();
+    }
 }
