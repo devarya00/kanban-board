@@ -8,16 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('columns', function (Blueprint $table) {
-            
-            $table->text('policy')->nullable()->after('wip_limit');
+        Schema::table('boards', function (Blueprint $table) {
+            $table->boolean('is_favorite')->default(false)->after('urgent_threshold_days');
         });
     }
 
     public function down(): void
     {
-        Schema::table('columns', function (Blueprint $table) {
-            $table->dropColumn('policy');
+        Schema::table('boards', function (Blueprint $table) {
+            $table->dropColumn('is_favorite');
         });
     }
 };

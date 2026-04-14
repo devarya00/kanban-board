@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/boards/{board}', [BoardController::class, 'destroy'])->name('boards.destroy');
     Route::get('/overview', [OverviewController::class, 'index'])->name('overview');
     Route::delete('/cards/{card}', [CardController::class, 'destroy'])->name('cards.destroy');
+    Route::patch('/boards/{board}/favorite', [App\Http\Controllers\BoardController::class, 'toggleFavorite'])->name('boards.favorite');
 });
 
 require __DIR__.'/auth.php';

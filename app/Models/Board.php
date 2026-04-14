@@ -9,7 +9,11 @@ class Board extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'user_id'];
+    protected $fillable = ['title', 'user_id', 'urgent_threshold_days', 'is_favorite'];
+
+    protected $casts = [
+        'is_favorite' => 'boolean',
+    ];
 
     public function columns() 
     {

@@ -3,13 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Board;
+use App\Models\Card;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class OverviewController extends Controller
 {
     public function index()
     {
-        $boards = Board::where('user_id', auth()->id())
+        $userId = auth()->id();
+
+        $boards = Board::where('user_id', $userId)
             ->with('columns.cards')
             ->get()
             ->map(function ($board) {
@@ -29,13 +33,23 @@ class OverviewController extends Controller
                     'total' => $totalTasks,
                     'completed' => $completedTasks,
                     'pending' => $totalTasks - $completedTasks,
+                    'progress' => $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0
                 ];
 
                 return $board;
             });
 
+        $priorityData = Card::whereHas('column.board', function($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
+            ->select('priority', DB::raw('count(*) as count'))
+            ->groupBy('priority')
+            ->get();
+
         return Inertia::render('Kanban/Overview', [
-            'boards' => $boards
+            'boards' => $boards,
+            'priorityData' => $priorityData 
+
         ]);
     }
 }

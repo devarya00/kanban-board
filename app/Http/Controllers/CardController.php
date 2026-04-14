@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Card;
 use App\Models\Column;
+use App\Models\CardMovement; 
 use Illuminate\Http\Request;
 
 class CardController extends Controller
@@ -15,10 +16,15 @@ class CardController extends Controller
             'priority' => 'nullable|string'
         ]);
 
-        $column->cards()->create([
+        $card = $column->cards()->create([
             'title' => $request->title,
             'priority' => $request->priority ?? 'Normal',
             'order' => $column->cards()->count(),
+        ]);
+
+        $card->movements()->create([
+            'column_id' => $column->id,
+            'user_id' => auth()->id(),
         ]);
 
         return back();
@@ -29,10 +35,28 @@ class CardController extends Controller
         $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'column_id' => 'sometimes|required|exists:columns,id',
-            'priority' => 'sometimes|required|string'
+            'priority' => 'sometimes|required|string',
+            'is_blocked' => 'sometimes|boolean',
+            'block_reason' => 'nullable|string'
         ]);
 
-        $card->update($request->only(['title', 'column_id', 'priority']));
+        $oldColumnId = $card->column_id;
+
+        $card->update($request->only([
+            'title', 
+            'column_id', 
+            'priority', 
+            'is_blocked', 
+            'block_reason'
+        ]));
+
+        if ($request->has('column_id') && $oldColumnId != $request->column_id) {
+            CardMovement::create([
+                'card_id' => $card->id,
+                'column_id' => $request->column_id,
+                'user_id' => auth()->id(),
+            ]);
+        }
 
         return back();
     }
